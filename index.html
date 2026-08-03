@@ -126,9 +126,6 @@
     -webkit-backdrop-filter: blur(14px);
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transform-style: preserve-3d;
-    transform: rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
-    transition: transform 0.15s ease-out, box-shadow 0.3s ease;
-    will-change: transform;
   }
 
   .unit::before {
@@ -378,22 +375,6 @@
   }
 
   requestAnimationFrame(tick);
-
-  // Efeito 3D sutil: as cartas se inclinam seguindo o ponteiro do mouse.
-  var maxTilt = 10;
-  document.addEventListener("pointermove", function (e) {
-    var rect = els.countdown.getBoundingClientRect();
-    var relX = (e.clientX - rect.left) / rect.width;
-    var relY = (e.clientY - rect.top) / rect.height;
-    var rx = (relX - 0.5) * maxTilt * 2;
-    var ry = (relY - 0.5) * -maxTilt * 2;
-    els.countdown.style.setProperty("--rx", rx.toFixed(2) + "deg");
-    els.countdown.style.setProperty("--ry", ry.toFixed(2) + "deg");
-  });
-  document.addEventListener("pointerleave", function () {
-    els.countdown.style.setProperty("--rx", "0deg");
-    els.countdown.style.setProperty("--ry", "0deg");
-  });
 
   function launchConfetti() {
     var emojis = ["🎉", "🎊", "✨", "🥳", "🎈"];
