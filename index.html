@@ -207,6 +207,78 @@
     text-align: center;
   }
 
+  /* Manual entry card — highlighted so it's obvious what you fill in yourself */
+  .manual-card {
+    position: relative;
+    z-index: 1;
+    width: min(96vw, 520px);
+    padding: 1.1rem 1.3rem;
+    border-radius: 16px;
+    background: rgba(125, 211, 252, 0.08);
+    border: 2px dashed var(--accent-1);
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.12), 0 10px 30px rgba(0, 0, 0, 0.35);
+    text-align: center;
+  }
+
+  .manual-label {
+    margin: 0 0 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-1);
+  }
+
+  .manual-card label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .manual-row {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .manual-row input {
+    width: 6rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-size: 1rem;
+    text-align: center;
+  }
+
+  .manual-row input:focus {
+    outline: 2px solid var(--accent-1);
+    outline-offset: 1px;
+  }
+
+  .manual-row button {
+    padding: 0.55rem 1.1rem;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+    color: #0b0f1f;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .manual-row button:hover {
+    filter: brightness(1.08);
+  }
+
+  .manual-status {
+    margin: 0.7rem 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
   /* Celebration screen shown when the countdown reaches zero */
   #celebration {
     display: none;
@@ -270,6 +342,16 @@
     <p class="subtitle">Retorno em <span id="target-date">10/08/2026 às 07:30</span></p>
   </header>
 
+  <section class="manual-card">
+    <p class="manual-label">✏️ Preencha manualmente</p>
+    <label for="remaining-days">Quantos dias de férias o Gleybson ainda tem para tirar (não tirados até hoje)?</label>
+    <div class="manual-row">
+      <input type="number" id="remaining-days" min="0" step="1" inputmode="numeric" placeholder="ex: 5">
+      <button id="save-remaining" type="button">Atualizar contagem</button>
+    </div>
+    <p id="manual-status" class="manual-status"></p>
+  </section>
+
   <div id="countdown">
     <div class="unit"><div class="value" id="days">0</div><div class="label">Dias</div></div>
     <div class="unit"><div class="value" id="hours">00</div><div class="label">Horas</div></div>
@@ -293,8 +375,11 @@
   "use strict";
 
   // Horário de Brasília não tem mais horário de verão desde 2019, então -03:00 é fixo o ano todo.
-  var TARGET = new Date("2026-08-10T07:30:00-03:00").getTime();
-  var START = TARGET - 90 * 24 * 60 * 60 * 1000; // janela de 90 dias para a barra de progresso
+  var DEFAULT_TARGET = new Date("2026-08-10T07:30:00-03:00").getTime();
+  var STORAGE_KEY = "gleybsonFeriasRestantes";
+
+  var TARGET;
+  var START;
 
   var els = {
     days: document.getElementById("days"),
@@ -305,11 +390,81 @@
     progress: document.getElementById("progress"),
     status: document.getElementById("status"),
     countdown: document.getElementById("countdown"),
-    celebration: document.getElementById("celebration")
+    celebration: document.getElementById("celebration"),
+    targetDate: document.getElementById("target-date"),
+    remainingInput: document.getElementById("remaining-days"),
+    saveButton: document.getElementById("save-remaining"),
+    manualStatus: document.getElementById("manual-status")
   };
 
   var lastSecond = -1;
   var finished = false;
+
+  function pad2(num) {
+    return num < 10 ? "0" + num : String(num);
+  }
+
+  // Retorno = dia em que os dias restantes acabam, às 07:30 (mesmo horário fixo -03:00 de sempre).
+  function computeTarget(referenceMs, remainingDays) {
+    var d = new Date(referenceMs);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + remainingDays);
+    d.setHours(7, 30, 0, 0);
+    return d.getTime();
+  }
+
+  function formatDateTime(ms) {
+    var d = new Date(ms);
+    return pad2(d.getDate()) + "/" + pad2(d.getMonth() + 1) + "/" + d.getFullYear() +
+      " às " + pad2(d.getHours()) + ":" + pad2(d.getMinutes());
+  }
+
+  function loadFromStorage() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (typeof data.remainingDays !== "number" || typeof data.referenceMs !== "number") return null;
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function applyTarget(referenceMs, remainingDays) {
+    TARGET = computeTarget(referenceMs, remainingDays);
+    START = referenceMs;
+    els.targetDate.textContent = formatDateTime(TARGET);
+    finished = false;
+    els.celebration.classList.remove("show");
+    lastSecond = -1;
+  }
+
+  var saved = loadFromStorage();
+  if (saved) {
+    applyTarget(saved.referenceMs, saved.remainingDays);
+    els.remainingInput.value = saved.remainingDays;
+    els.manualStatus.textContent = "Atualizado em " + formatDateTime(saved.referenceMs) + " com " + saved.remainingDays + " dia(s) restante(s).";
+  } else {
+    TARGET = DEFAULT_TARGET;
+    START = TARGET - 90 * 24 * 60 * 60 * 1000; // janela padrão de 90 dias até haver um valor manual salvo
+    var now = Date.now();
+    var estimatedRemaining = Math.max(0, Math.round((TARGET - now) / 86400000));
+    els.remainingInput.value = estimatedRemaining;
+    els.manualStatus.textContent = "Ainda não atualizado manualmente — usando data padrão.";
+  }
+
+  els.saveButton.addEventListener("click", function () {
+    var value = parseInt(els.remainingInput.value, 10);
+    if (isNaN(value) || value < 0) {
+      els.manualStatus.textContent = "Informe um número de dias válido (0 ou mais).";
+      return;
+    }
+    var referenceMs = Date.now();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ remainingDays: value, referenceMs: referenceMs }));
+    applyTarget(referenceMs, value);
+    els.manualStatus.textContent = "Atualizado em " + formatDateTime(referenceMs) + " com " + value + " dia(s) restante(s).";
+  });
 
   function pad(num, size) {
     var s = String(Math.max(0, num));
