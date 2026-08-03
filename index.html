@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volta do Gleybson 🎉</title>
+<meta name="description" content="Contador regressivo para a volta do Gleybson ao trabalho">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>">
+<style>
+  :root {
+    --bg-1: #0b0f1f;
+    --bg-2: #141b3a;
+    --accent-1: #7dd3fc;
+    --accent-2: #a78bfa;
+    --accent-3: #f472b6;
+    --card-bg: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(255, 255, 255, 0.18);
+    --text: #f4f6ff;
+    --muted: #9aa4c7;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    padding: 2rem 1rem;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: var(--text);
+    background: radial-gradient(circle at 20% 20%, #1b2450 0%, transparent 55%),
+                radial-gradient(circle at 80% 0%, #3a1b52 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, #0e2440 0%, transparent 60%),
+                linear-gradient(160deg, var(--bg-1), var(--bg-2));
+    background-attachment: fixed;
+    overflow-x: hidden;
+    perspective: 1400px;
+  }
+
+  /* Floating ambient orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+    z-index: 0;
+    animation: float 16s ease-in-out infinite;
+  }
+  .orb.a { width: 320px; height: 320px; background: var(--accent-1); top: -80px; left: -80px; animation-duration: 18s; }
+  .orb.b { width: 260px; height: 260px; background: var(--accent-2); bottom: -60px; right: -60px; animation-duration: 22s; animation-delay: -6s; }
+  .orb.c { width: 220px; height: 220px; background: var(--accent-3); bottom: 20%; left: 10%; animation-duration: 20s; animation-delay: -3s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(30px, -40px) scale(1.08); }
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.35em;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(1.6rem, 4.5vw, 3rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: sheen 6s linear infinite;
+  }
+
+  @keyframes sheen {
+    to { background-position: 200% center; }
+  }
+
+  .subtitle {
+    margin: 0.75rem 0 0;
+    color: var(--muted);
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+  }
+
+  #target-date {
+    color: var(--accent-1);
+    font-weight: 600;
+  }
+
+  /* Countdown grid */
+  #countdown {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(90px, 1fr));
+    gap: clamp(0.6rem, 2vw, 1.2rem);
+    width: min(96vw, 980px);
+    transform-style: preserve-3d;
+  }
+
+  .unit {
+    position: relative;
+    padding: clamp(1rem, 2.5vw, 1.6rem) 0.5rem;
+    border-radius: 18px;
+    text-align: center;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transform-style: preserve-3d;
+    transform: rotateX(var(--ry, 0deg)) rotateY(var(--rx, 0deg));
+    transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+    will-change: transform;
+  }
+
+  .unit::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    padding: 1px;
+    background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .unit .value {
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.6rem, 5.5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--text);
+    text-shadow: 0 0 18px rgba(125, 211, 252, 0.45);
+    transform: translateZ(30px);
+  }
+
+  .unit.ms .value {
+    color: var(--accent-3);
+    text-shadow: 0 0 18px rgba(244, 114, 182, 0.5);
+  }
+
+  .unit .label {
+    margin-top: 0.4rem;
+    font-size: clamp(0.6rem, 1.6vw, 0.8rem);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transform: translateZ(20px);
+  }
+
+  @keyframes pulse {
+    0% { transform: translateZ(30px) scale(1); }
+    30% { transform: translateZ(30px) scale(1.12); }
+    100% { transform: translateZ(30px) scale(1); }
+  }
+
+  .unit .value.pulse {
+    animation: pulse 0.35s ease-out;
+  }
+
+  progress {
+    position: relative;
+    z-index: 1;
+    width: min(96vw, 980px);
+    height: 10px;
+    -webkit-appearance: none;
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.08);
+  }
+  progress::-webkit-progress-bar { background: rgba(255, 255, 255, 0.08); }
+  progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    border-radius: 999px;
+    transition: width 0.2s linear;
+  }
+  progress::-moz-progress-bar {
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    border-radius: 999px;
+  }
+
+  #status {
+    position: relative;
+    z-index: 1;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  /* Celebration screen shown when the countdown reaches zero */
+  #celebration {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    background: radial-gradient(circle at 50% 30%, rgba(167, 139, 250, 0.35), transparent 60%),
+                linear-gradient(160deg, var(--bg-1), var(--bg-2));
+  }
+  #celebration.show { display: flex; }
+  #celebration h2 {
+    font-size: clamp(2rem, 6vw, 4rem);
+    margin: 0;
+    background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  #celebration p { color: var(--muted); margin: 0; font-size: 1.1rem; }
+
+  .confetti {
+    position: fixed;
+    top: -10px;
+    font-size: 1.4rem;
+    animation: fall linear forwards;
+    z-index: 6;
+    pointer-events: none;
+  }
+  @keyframes fall {
+    to { transform: translateY(110vh) rotate(360deg); opacity: 0.2; }
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  @media (max-width: 560px) {
+    #countdown { grid-template-columns: repeat(3, 1fr); }
+    .unit.ms { grid-column: span 3; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="orb a"></div>
+  <div class="orb b"></div>
+  <div class="orb c"></div>
+
+  <header>
+    <p class="eyebrow">Contagem regressiva</p>
+    <h1>Falta pouco para o Gleybson voltar! 🎉</h1>
+    <p class="subtitle">Retorno em <span id="target-date">10/08/2026 às 07:30</span></p>
+  </header>
+
+  <div id="countdown">
+    <div class="unit"><div class="value" id="days">0</div><div class="label">Dias</div></div>
+    <div class="unit"><div class="value" id="hours">00</div><div class="label">Horas</div></div>
+    <div class="unit"><div class="value" id="minutes">00</div><div class="label">Minutos</div></div>
+    <div class="unit"><div class="value" id="seconds">00</div><div class="label">Segundos</div></div>
+    <div class="unit ms"><div class="value" id="millis">000</div><div class="label">Milissegundos</div></div>
+  </div>
+
+  <progress id="progress" value="0" max="100"></progress>
+  <p id="status">calculando...</p>
+
+  <footer>Feito com carinho para comemorar a volta do Gleybson ✨</footer>
+
+  <div id="celebration">
+    <h2>Ele voltou! 🎊</h2>
+    <p>O Gleybson está de volta ao trabalho. Bora comemorar!</p>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+
+  // Horário de Brasília não tem mais horário de verão desde 2019, então -03:00 é fixo o ano todo.
+  var TARGET = new Date("2026-08-10T07:30:00-03:00").getTime();
+  var START = TARGET - 90 * 24 * 60 * 60 * 1000; // janela de 90 dias para a barra de progresso
+
+  var els = {
+    days: document.getElementById("days"),
+    hours: document.getElementById("hours"),
+    minutes: document.getElementById("minutes"),
+    seconds: document.getElementById("seconds"),
+    millis: document.getElementById("millis"),
+    progress: document.getElementById("progress"),
+    status: document.getElementById("status"),
+    countdown: document.getElementById("countdown"),
+    celebration: document.getElementById("celebration")
+  };
+
+  var lastSecond = -1;
+  var finished = false;
+
+  function pad(num, size) {
+    var s = String(Math.max(0, num));
+    while (s.length < size) s = "0" + s;
+    return s;
+  }
+
+  function setValue(el, text) {
+    if (el.textContent !== text) {
+      el.textContent = text;
+    }
+  }
+
+  function pulse(el) {
+    el.classList.remove("pulse");
+    // force reflow so the animation can restart
+    void el.offsetWidth;
+    el.classList.add("pulse");
+  }
+
+  function tick() {
+    var now = Date.now();
+    var diff = TARGET - now;
+
+    if (diff <= 0) {
+      finished = true;
+      setValue(els.days, "0");
+      setValue(els.hours, "00");
+      setValue(els.minutes, "00");
+      setValue(els.seconds, "00");
+      setValue(els.millis, "000");
+      els.progress.value = 100;
+      els.status.textContent = "Chegou o grande dia!";
+      els.celebration.classList.add("show");
+      launchConfetti();
+      return;
+    }
+
+    var days = Math.floor(diff / 86400000);
+    var hours = Math.floor((diff % 86400000) / 3600000);
+    var minutes = Math.floor((diff % 3600000) / 60000);
+    var seconds = Math.floor((diff % 60000) / 1000);
+    var millis = Math.floor(diff % 1000);
+
+    setValue(els.days, String(days));
+    setValue(els.hours, pad(hours, 2));
+    setValue(els.minutes, pad(minutes, 2));
+    setValue(els.seconds, pad(seconds, 2));
+    setValue(els.millis, pad(millis, 3));
+
+    if (seconds !== lastSecond) {
+      lastSecond = seconds;
+      pulse(els.seconds);
+    }
+
+    var elapsed = now - START;
+    var total = TARGET - START;
+    var pct = Math.min(100, Math.max(0, (elapsed / total) * 100));
+    els.progress.value = pct;
+    els.status.textContent = pct.toFixed(4) + "% do caminho percorrido";
+
+    requestAnimationFrame(tick);
+  }
+
+  requestAnimationFrame(tick);
+
+  // Efeito 3D sutil: as cartas se inclinam seguindo o ponteiro do mouse.
+  var maxTilt = 10;
+  document.addEventListener("pointermove", function (e) {
+    var rect = els.countdown.getBoundingClientRect();
+    var relX = (e.clientX - rect.left) / rect.width;
+    var relY = (e.clientY - rect.top) / rect.height;
+    var rx = (relX - 0.5) * maxTilt * 2;
+    var ry = (relY - 0.5) * -maxTilt * 2;
+    els.countdown.style.setProperty("--rx", rx.toFixed(2) + "deg");
+    els.countdown.style.setProperty("--ry", ry.toFixed(2) + "deg");
+  });
+  document.addEventListener("pointerleave", function () {
+    els.countdown.style.setProperty("--rx", "0deg");
+    els.countdown.style.setProperty("--ry", "0deg");
+  });
+
+  function launchConfetti() {
+    var emojis = ["🎉", "🎊", "✨", "🥳", "🎈"];
+    for (var i = 0; i < 60; i++) {
+      (function () {
+        var span = document.createElement("span");
+        span.className = "confetti";
+        span.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        span.style.left = Math.random() * 100 + "vw";
+        span.style.animationDuration = 3 + Math.random() * 3 + "s";
+        span.style.animationDelay = Math.random() * 4 + "s";
+        span.style.fontSize = 1 + Math.random() * 1.5 + "rem";
+        document.body.appendChild(span);
+        setTimeout(function () { span.remove(); }, 8000);
+      })();
+    }
+    setInterval(function () {
+      if (finished) launchConfetti();
+    }, 6000);
+  }
+})();
+</script>
+</body>
+</html>
