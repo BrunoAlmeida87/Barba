@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Volta do Gleybson 🎉</title>
-<meta name="description" content="Contador regressivo para a volta do Gleybson ao trabalho">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>">
+<title>Férias do Barba 🏖️</title>
+<meta name="description" content="Contador regressivo para as férias do Barba e o cardápio da semana da empresa">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏖️</text></svg>">
 <style>
   :root {
     --bg-1: #0b0f1f;
@@ -17,13 +17,23 @@
     --card-border: rgba(255, 255, 255, 0.18);
     --text: #f4f6ff;
     --muted: #9aa4c7;
+
+    /* Macronutrientes */
+    --prot: #f87171;
+    --carb: #fbbf24;
+    --fib:  #4ade80;
+    --acu:  #f472b6;
+    --gord: #38bdf8;
   }
 
   * { box-sizing: border-box; }
 
-  html, body {
+  html {
     height: 100%;
+    background: var(--bg-1);
   }
+
+  body { height: 100%; }
 
   body {
     margin: 0;
@@ -31,9 +41,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     gap: clamp(1.5rem, 4vw, 2.5rem);
-    padding: 2rem 1rem;
+    padding: clamp(2rem, 6vw, 3.5rem) 1rem;
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     color: var(--text);
     background: radial-gradient(circle at 20% 20%, #1b2450 0%, transparent 55%),
@@ -42,7 +51,6 @@
                 linear-gradient(160deg, var(--bg-1), var(--bg-2));
     background-attachment: fixed;
     overflow-x: hidden;
-    perspective: 1400px;
   }
 
   /* Floating ambient orbs */
@@ -63,11 +71,7 @@
     50% { transform: translate(30px, -40px) scale(1.08); }
   }
 
-  header {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-  }
+  header { position: relative; z-index: 1; text-align: center; }
 
   .eyebrow {
     text-transform: uppercase;
@@ -89,9 +93,7 @@
     animation: sheen 6s linear infinite;
   }
 
-  @keyframes sheen {
-    to { background-position: 200% center; }
-  }
+  @keyframes sheen { to { background-position: 200% center; } }
 
   .subtitle {
     margin: 0.75rem 0 0;
@@ -99,10 +101,7 @@
     font-size: clamp(0.9rem, 2vw, 1.05rem);
   }
 
-  #target-date {
-    color: var(--accent-1);
-    font-weight: 600;
-  }
+  #target-date { color: var(--accent-1); font-weight: 600; }
 
   /* Countdown grid */
   #countdown {
@@ -112,7 +111,6 @@
     grid-template-columns: repeat(5, minmax(90px, 1fr));
     gap: clamp(0.6rem, 2vw, 1.2rem);
     width: min(96vw, 980px);
-    transform-style: preserve-3d;
   }
 
   .unit {
@@ -125,7 +123,6 @@
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     box-shadow: 0 20px 45px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    transform-style: preserve-3d;
   }
 
   .unit::before {
@@ -149,7 +146,6 @@
     line-height: 1;
     color: var(--text);
     text-shadow: 0 0 18px rgba(125, 211, 252, 0.45);
-    transform: translateZ(30px);
   }
 
   .unit.ms .value {
@@ -163,18 +159,15 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--muted);
-    transform: translateZ(20px);
   }
 
   @keyframes pulse {
-    0% { transform: translateZ(30px) scale(1); }
-    30% { transform: translateZ(30px) scale(1.12); }
-    100% { transform: translateZ(30px) scale(1); }
+    0% { transform: scale(1); }
+    30% { transform: scale(1.12); }
+    100% { transform: scale(1); }
   }
 
-  .unit .value.pulse {
-    animation: pulse 0.35s ease-out;
-  }
+  .unit .value.pulse { animation: pulse 0.35s ease-out; }
 
   progress {
     position: relative;
@@ -205,6 +198,198 @@
     color: var(--muted);
     font-size: 0.9rem;
     text-align: center;
+    margin: 0;
+  }
+
+  /* ---------- Cardápio ---------- */
+  #menu {
+    position: relative;
+    z-index: 1;
+    width: min(96vw, 1180px);
+  }
+
+  .section-head { text-align: center; margin-bottom: 1.25rem; }
+
+  .section-head h2 {
+    margin: 0;
+    font-size: clamp(1.3rem, 3.5vw, 2rem);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+
+  .section-head p { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 0.75rem;
+    margin: 1rem 0 1.75rem;
+  }
+
+  .legend .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+    color: var(--muted);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.prot { background: var(--prot); }
+  .dot.carb { background: var(--carb); }
+  .dot.fib  { background: var(--fib); }
+  .dot.acu  { background: var(--acu); }
+  .dot.gord { background: var(--gord); }
+
+  .days {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: clamp(0.8rem, 2vw, 1.2rem);
+    align-items: start;
+  }
+
+  .day {
+    border-radius: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+    padding: 1.1rem 1.1rem 1.3rem;
+  }
+
+  .day.today {
+    border-color: rgba(125, 211, 252, 0.65);
+    box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.35), 0 24px 55px rgba(0, 0, 0, 0.5);
+  }
+
+  .day.off { opacity: 0.75; }
+
+  .day-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .day-head .weekday {
+    font-weight: 800;
+    font-size: 1.05rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .day-head .date { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+
+  .badge-today {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.6rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #071021;
+    background: var(--accent-1);
+    vertical-align: middle;
+  }
+
+  .macro { margin-bottom: 1rem; }
+  .macro:last-child { margin-bottom: 0; }
+
+  .macro-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .macro-title .kcal { margin-left: auto; letter-spacing: 0.04em; text-transform: none; opacity: 0.75; }
+
+  .macro ul { list-style: none; margin: 0; padding: 0; }
+
+  .macro li {
+    position: relative;
+    padding: 0.3rem 0 0.3rem 0.85rem;
+    font-size: 0.92rem;
+    line-height: 1.35;
+  }
+
+  .macro li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.78em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.85;
+  }
+
+  .macro.prot li { color: #fecaca; }
+  .macro.carb li { color: #fde68a; }
+  .macro.fib  li { color: #bbf7d0; }
+  .macro.acu  li { color: #fbcfe8; }
+
+  .slot {
+    display: block;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.8;
+  }
+
+  .tag {
+    display: inline-block;
+    margin-left: 0.35rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    opacity: 0.75;
+    vertical-align: middle;
+  }
+  .tag.prot { color: var(--prot); }
+  .tag.carb { color: var(--carb); }
+  .tag.fib  { color: var(--fib); }
+  .tag.acu  { color: var(--acu); }
+  .tag.gord { color: var(--gord); }
+
+  del { color: var(--muted); text-decoration-color: var(--accent-3); }
+  .swap { color: inherit; }
+
+  .day-note {
+    margin: 0;
+    padding: 1.2rem 0.25rem;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .menu-foot {
+    margin: 1.5rem 0 0;
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.6;
   }
 
   /* Celebration screen shown when the countdown reaches zero */
@@ -218,6 +403,7 @@
     flex-direction: column;
     gap: 1rem;
     text-align: center;
+    padding: 1rem;
     background: radial-gradient(circle at 50% 30%, rgba(167, 139, 250, 0.35), transparent 60%),
                 linear-gradient(160deg, var(--bg-1), var(--bg-2));
   }
@@ -252,9 +438,18 @@
     text-align: center;
   }
 
+  /* A semana inteira em uma única linha em telas largas */
+  @media (min-width: 1120px) {
+    .days { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  }
+
   @media (max-width: 560px) {
     #countdown { grid-template-columns: repeat(3, 1fr); }
     .unit.ms { grid-column: span 3; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orb, h1 { animation: none; }
   }
 </style>
 </head>
@@ -266,8 +461,8 @@
 
   <header>
     <p class="eyebrow">Contagem regressiva</p>
-    <h1>Falta pouco para o Gleybson voltar! 🎉</h1>
-    <p class="subtitle">Retorno em <span id="target-date">10/08/2026 às 07:30</span></p>
+    <h1>Falta pouco para as férias do Barba! 🏖️</h1>
+    <p class="subtitle">Férias a partir de <span id="target-date">16/09/2026</span> — último expediente em 15/09</p>
   </header>
 
   <div id="countdown">
@@ -281,19 +476,45 @@
   <progress id="progress" value="0" max="100"></progress>
   <p id="status">calculando...</p>
 
-  <footer>Feito com carinho para comemorar a volta do Gleybson ✨</footer>
+  <section id="menu">
+    <div class="section-head">
+      <h2>Cardápio da semana 🍽️</h2>
+      <p>Semana de 07 a 11 de setembro — itens agrupados por macronutriente</p>
+    </div>
+
+    <div class="legend">
+      <span class="chip"><span class="dot prot"></span>Proteínas</span>
+      <span class="chip"><span class="dot carb"></span>Carboidratos</span>
+      <span class="chip"><span class="dot fib"></span>Fibras e vegetais</span>
+      <span class="chip"><span class="dot acu"></span>Açúcares e frutas</span>
+      <span class="chip"><span class="dot gord"></span>Gorduras</span>
+    </div>
+
+    <div class="days" id="days-grid"></div>
+
+    <p class="menu-foot">
+      Riscados e substituições em azul são as alterações feitas à mão no cardápio impresso.<br>
+      As etiquetas extras indicam o segundo macronutriente relevante do prato.
+    </p>
+  </section>
+
+  <footer>Feito com carinho para a contagem regressiva das férias do Barba ✨</footer>
 
   <div id="celebration">
-    <h2>Ele voltou! 🎊</h2>
-    <p>O Gleybson está de volta ao trabalho. Bora comemorar!</p>
+    <h2>Férias! 🎊</h2>
+    <p>O Barba entrou de férias. Bom descanso!</p>
   </div>
 
 <script>
 (function () {
   "use strict";
 
+  /* ------------------------------------------------------------------ *
+   * Contagem regressiva                                                 *
+   * ------------------------------------------------------------------ */
+
   // Horário de Brasília não tem mais horário de verão desde 2019, então -03:00 é fixo o ano todo.
-  var TARGET = new Date("2026-08-10T07:30:00-03:00").getTime();
+  var TARGET = new Date("2026-09-16T00:00:00-03:00").getTime();
   var START = TARGET - 90 * 24 * 60 * 60 * 1000; // janela de 90 dias para a barra de progresso
 
   var els = {
@@ -342,7 +563,7 @@
       setValue(els.seconds, "00");
       setValue(els.millis, "000");
       els.progress.value = 100;
-      els.status.textContent = "Chegou o grande dia!";
+      els.status.textContent = "Começaram as férias!";
       els.celebration.classList.add("show");
       launchConfetti();
       return;
@@ -377,7 +598,7 @@
   requestAnimationFrame(tick);
 
   function launchConfetti() {
-    var emojis = ["🎉", "🎊", "✨", "🥳", "🎈"];
+    var emojis = ["🎉", "🎊", "✨", "🏖️", "🕶️"];
     for (var i = 0; i < 60; i++) {
       (function () {
         var span = document.createElement("span");
@@ -395,6 +616,181 @@
       if (finished) launchConfetti();
     }, 6000);
   }
+
+  /* ------------------------------------------------------------------ *
+   * Cardápio da semana                                                  *
+   * ------------------------------------------------------------------ *
+   * Cada item traz:
+   *   nome  -> como está no cardápio impresso
+   *   slot  -> em que parte da refeição ele aparece
+   *   extra -> segundo macronutriente relevante (etiqueta)
+   *   troca -> substituição feita à mão sobre um item riscado
+   */
+
+  var MACROS = [
+    { key: "prot", nome: "Proteínas" },
+    { key: "carb", nome: "Carboidratos" },
+    { key: "fib",  nome: "Fibras e vegetais" },
+    { key: "acu",  nome: "Açúcares e frutas" }
+  ];
+
+  var CARDAPIO = [
+    {
+      weekday: "Segunda",
+      date: "2026-09-07",
+      label: "07/set",
+      feriado: "Feriado da Independência — sem refeição servida"
+    },
+    {
+      weekday: "Terça",
+      date: "2026-09-08",
+      label: "08/set",
+      itens: [
+        { nome: "Almôndegas ao Sugo", macro: "prot", slot: "Prato principal", extra: "gord" },
+        { nome: "Filé de Frango à Pizzaiollo", macro: "prot", slot: "Prato principal" },
+        { nome: "Queijo Prato", macro: "prot", slot: "Desjejum", troca: "Polenguinho", extra: "gord" },
+        { nome: "Espaguete ao Alho e Óleo", macro: "carb", slot: "Guarnição", extra: "gord" },
+        { nome: "Alface Crespa", macro: "fib", slot: "Salada" },
+        { nome: "Cenoura Ralada", macro: "fib", slot: "Salada" },
+        { nome: "Mix de Vegetais", macro: "fib", slot: "Salada" },
+        { nome: "Pepino com Laranja", macro: "fib", slot: "Salada", extra: "acu" },
+        { nome: "Doce de Mamão com Creme", macro: "acu", slot: "Sobremesa" },
+        { nome: "Melancia", macro: "acu", slot: "Sobremesa" },
+        { nome: "Suco de Abacaxi", macro: "acu", slot: "Bebida" },
+        { nome: "Maçã", macro: "acu", slot: "Desjejum", extra: "fib" }
+      ]
+    },
+    {
+      weekday: "Quarta",
+      date: "2026-09-09",
+      label: "09/set",
+      itens: [
+        { nome: "Frango à Caçadora", macro: "prot", slot: "Prato principal" },
+        { nome: "Bife à Fricandole", macro: "prot", slot: "Prato principal" },
+        { nome: "Mortadela", macro: "prot", slot: "Desjejum", troca: "Queijo Prato", extra: "gord" },
+        { nome: "Polenta Gratinada", macro: "carb", slot: "Guarnição", extra: "gord" },
+        { nome: "Alface Americana", macro: "fib", slot: "Salada" },
+        { nome: "Tomate", macro: "fib", slot: "Salada" },
+        { nome: "Salada Estações", macro: "fib", slot: "Salada" },
+        { nome: "Abóbora com Chuchu", macro: "fib", slot: "Salada" },
+        { nome: "Pudim de Chocolate", macro: "acu", slot: "Sobremesa" },
+        { nome: "Banana Prata", macro: "acu", slot: "Sobremesa", extra: "fib" },
+        { nome: "Suco de Caju", macro: "acu", slot: "Bebida" },
+        { nome: "Melão", macro: "acu", slot: "Desjejum" }
+      ]
+    },
+    {
+      weekday: "Quinta",
+      date: "2026-09-10",
+      label: "10/set",
+      itens: [
+        { nome: "Peixe à Escabeche", macro: "prot", slot: "Prato principal" },
+        { nome: "Bife de Caçarola", macro: "prot", slot: "Prato principal" },
+        { nome: "Salpicão", macro: "prot", slot: "Salada", extra: "gord" },
+        { nome: "Presunto", macro: "prot", slot: "Desjejum", troca: "Mortadela" },
+        { nome: "Alfaces Crespa e Roxa", macro: "fib", slot: "Salada" },
+        { nome: "Beterraba", macro: "fib", slot: "Salada" },
+        { nome: "Acelga com Laranja", macro: "fib", slot: "Salada", extra: "acu" },
+        { nome: "Cenoura Burguesa", macro: "fib", slot: "Guarnição" },
+        { nome: "Romeu e Julieta", macro: "acu", slot: "Sobremesa" },
+        { nome: "Melancia", macro: "acu", slot: "Sobremesa" },
+        { nome: "Suco de Acerola", macro: "acu", slot: "Bebida" },
+        { nome: "Mamão", macro: "acu", slot: "Desjejum", extra: "fib" }
+      ]
+    },
+    {
+      weekday: "Sexta",
+      date: "2026-09-11",
+      label: "11/set",
+      itens: [
+        { nome: "Empadão de Frango", macro: "prot", slot: "Prato principal", extra: "carb" },
+        { nome: "Bife à Good Good", macro: "prot", slot: "Prato principal" },
+        { nome: "Presunto", macro: "prot", slot: "Desjejum" },
+        { nome: "Legumes ao Alho e Óleo", macro: "fib", slot: "Guarnição", extra: "gord" },
+        { nome: "Alface Real", macro: "fib", slot: "Salada" },
+        { nome: "Tomate", macro: "fib", slot: "Salada" },
+        { nome: "Alface Jamaica", macro: "fib", slot: "Salada" },
+        { nome: "Repolho à Campanha", macro: "fib", slot: "Salada" },
+        { nome: "Espumoni", macro: "acu", slot: "Sobremesa", extra: "gord" },
+        { nome: "Mamão", macro: "acu", slot: "Sobremesa", extra: "fib" },
+        { nome: "Suco de Manga", macro: "acu", slot: "Bebida" },
+        { nome: "Melão", macro: "acu", slot: "Desjejum" }
+      ]
+    }
+  ];
+
+  var MACRO_NOMES = { prot: "Proteína", carb: "Carboidrato", fib: "Fibra", acu: "Açúcar", gord: "Gordura" };
+
+  function hojeISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1, 2) + "-" + pad(d.getDate(), 2);
+  }
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text != null) node.textContent = text;
+    return node;
+  }
+
+  function renderItem(item) {
+    var li = el("li");
+
+    if (item.troca) {
+      li.appendChild(el("del", null, item.nome));
+      li.appendChild(document.createTextNode(" "));
+      li.appendChild(el("span", "swap", "→ " + item.troca));
+    } else {
+      li.appendChild(document.createTextNode(item.nome));
+    }
+
+    if (item.extra) {
+      li.appendChild(el("span", "tag " + item.extra, MACRO_NOMES[item.extra]));
+    }
+
+    li.appendChild(el("span", "slot", item.slot));
+    return li;
+  }
+
+  function renderDia(dia, hoje) {
+    var card = el("article", "day");
+    if (dia.date === hoje) card.classList.add("today");
+    if (dia.feriado) card.classList.add("off");
+
+    var head = el("div", "day-head");
+    var wd = el("span", "weekday", dia.weekday);
+    if (dia.date === hoje) wd.appendChild(el("span", "badge-today", "hoje"));
+    head.appendChild(wd);
+    head.appendChild(el("span", "date", dia.label));
+    card.appendChild(head);
+
+    if (dia.feriado) {
+      card.appendChild(el("p", "day-note", "🇧🇷 " + dia.feriado));
+      return card;
+    }
+
+    MACROS.forEach(function (macro) {
+      var itens = dia.itens.filter(function (i) { return i.macro === macro.key; });
+      if (!itens.length) return;
+
+      var bloco = el("div", "macro " + macro.key);
+      var titulo = el("div", "macro-title");
+      titulo.appendChild(el("span", "dot " + macro.key));
+      titulo.appendChild(document.createTextNode(macro.nome));
+      bloco.appendChild(titulo);
+
+      var ul = el("ul");
+      itens.forEach(function (item) { ul.appendChild(renderItem(item)); });
+      bloco.appendChild(ul);
+      card.appendChild(bloco);
+    });
+
+    return card;
+  }
+
+  var grid = document.getElementById("days-grid");
+  var hoje = hojeISO();
+  CARDAPIO.forEach(function (dia) { grid.appendChild(renderDia(dia, hoje)); });
 })();
 </script>
 </body>
