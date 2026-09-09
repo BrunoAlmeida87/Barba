@@ -103,6 +103,44 @@
 
   #target-date { color: var(--accent-1); font-weight: 600; }
 
+  /* Últimos dias antes das férias */
+  .plano {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 0.75rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+  }
+
+  .plano li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--card-border);
+  }
+
+  .plano .quando {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .plano .oque { font-size: 0.88rem; font-weight: 600; }
+
+  .plano .destaque {
+    border-color: rgba(125, 211, 252, 0.6);
+    background: rgba(125, 211, 252, 0.1);
+  }
+
+  .plano .destaque .oque { color: var(--accent-1); }
+
   /* Countdown grid */
   #countdown {
     position: relative;
@@ -462,7 +500,22 @@
   <header>
     <p class="eyebrow">Contagem regressiva</p>
     <h1>Falta pouco para as férias do Barba! 🏖️</h1>
-    <p class="subtitle">Férias a partir de <span id="target-date">16/09/2026</span> — último expediente em 15/09</p>
+    <p class="subtitle">Férias a partir de <span id="target-date">16/09/2026</span></p>
+
+    <ul class="plano">
+      <li>
+        <span class="quando">Seg 14/09</span>
+        <span class="oque">Último dia presencial</span>
+      </li>
+      <li>
+        <span class="quando">Ter 15/09</span>
+        <span class="oque">Home office 🏠</span>
+      </li>
+      <li class="destaque">
+        <span class="quando">Qua 16/09</span>
+        <span class="oque">Início das férias 🏖️</span>
+      </li>
+    </ul>
   </header>
 
   <div id="countdown">
@@ -721,9 +774,31 @@
 
   var MACRO_NOMES = { prot: "Proteína", carb: "Carboidrato", fib: "Fibra", acu: "Açúcar", gord: "Gordura" };
 
+  // O cardápio é da empresa, então o "hoje" precisa ser o dia em Brasília e não
+  // o do fuso do navegador: às 02:00 UTC de 09/set ainda é dia 08 no Brasil.
   function hojeISO() {
-    var d = new Date();
-    return d.getFullYear() + "-" + pad(d.getMonth() + 1, 2) + "-" + pad(d.getDate(), 2);
+    try {
+      var partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Sao_Paulo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(new Date());
+
+      var campos = {};
+      for (var i = 0; i < partes.length; i++) {
+        campos[partes[i].type] = partes[i].value;
+      }
+      if (campos.year && campos.month && campos.day) {
+        return campos.year + "-" + campos.month + "-" + campos.day;
+      }
+    } catch (e) {
+      // Sem suporte a Intl com fuso nomeado: cai no cálculo manual abaixo.
+    }
+
+    // Brasília é UTC-3 o ano todo desde o fim do horário de verão, em 2019.
+    var d = new Date(Date.now() - 3 * 60 * 60 * 1000);
+    return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1, 2) + "-" + pad(d.getUTCDate(), 2);
   }
 
   function el(tag, className, text) {
